@@ -1,0 +1,51 @@
+Sub DuplicateRowsBasedOnQuantity()
+    Dim ws As Worksheet
+    Dim lastRow As Long, i As Long, j As Long
+    Dim qty As Integer
+    Dim tbl As ListObject
+    Dim unit As Integer
+    ' Set the worksheet
+    Set ws = ThisWorkbook.Sheets("SageReportData1") ' Change to your sheet name
+    ' Check if there is a table on the worksheet
+    On Error Resume Next
+    Set tbl = ws.ListObjects(1) ' Assumes there is only one table, adjust if needed
+    On Error GoTo 0
+    ' If there's a table, set lastRow to the last row of the table
+    If Not tbl Is Nothing Then
+        lastRow = tbl.ListRows.Count + tbl.HeaderRowRange.Row
+    Else
+        ' Find the last row with data
+        lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    End If
+    ' Loop through the rows from the bottom up
+    For i = lastRow To 3 Step -1 ' Starting count from 3 rows
+        qty = ws.Cells(i, 7).Value ' Adjust to the correct column for Quantity
+        unit = ws.Cells(i, 8).Value ' Get the box unit info
+        ' if qty enqal to unit
+        If qty = unit Then
+         ws.Cells(i, 7).Value = "1 box"
+        End If
+        ' Continue processing while the quantity is greater than the unit
+        While qty > unit
+            ' Change the current row's quantity to "1 box"
+            ws.Cells(i, 7).Value = "1 box"
+            ' Create a new row with the remaining quantity
+            If Not tbl Is Nothing And i >= tbl.HeaderRowRange.Row And i <= tbl.Range.Rows.Count Then
+                tbl.ListRows.Add (i - tbl.HeaderRowRange.Row + 1) ' Inserts row after the current one
+                ws.Rows(i).Copy ws.Rows(i + 1)
+            Else
+                ws.Rows(i).Copy
+                ws.Rows(i + 1).Insert Shift:=xlDown
+            End If
+            ws.Cells(i + 1, 7).Value = "1 box" ' Set remaining quantity in the new row
+            ws.Cells(i + 1, 8).Value = unit ' Copy unit info
+            ' Update the quantity for the next iteration
+            qty = qty - unit
+        Wend
+        ' If the loop ended and the last quantity is less than unit, set it to "1 box"
+        If qty > 0 And qty < unit Then
+            ws.Cells(i, 7).Value = qty & " units"
+        End If
+    Next i
+    MsgBox "Rows duplicated and adjusted based on quantity and unit!", vbInformation
+End Sub
