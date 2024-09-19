@@ -17,12 +17,13 @@ def duplicate_rows_based_on_quantity(file_path, sheet_name):
 
         # return into next loop if this item is a weight item
         isWeight = ws.cell(row=i, column=9).value # 
-        if isWeight:
-           print('weight item found, skip it')
+    
+        if isWeight=='00000000':
+           print(isWeight)
            continue
-        
+           
         # Check if qty and unit are integers
-        if not isinstance(qty, int) or not isinstance(unit, int):
+        if not isinstance(qty, (int, float)) or not isinstance(unit, (int, float)):
             raise ValueError(f"Error: Row {i} has invalid data types. "
                              f"Quantity: {qty}, Unit: {unit} (Both should be integers).")
 
@@ -67,6 +68,6 @@ def duplicate_rows_based_on_quantity(file_path, sheet_name):
 # just change the file name, then run it.
 # just change the file name, then run it.
 # just change the file name, then run it.
-file_path = 'tmp853A.xlsx'
+file_path = 'TEST.xlsx'
 sheet_name = 'SageReportData1'
 duplicate_rows_based_on_quantity(file_path, sheet_name)
