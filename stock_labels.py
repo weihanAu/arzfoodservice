@@ -59,14 +59,11 @@ def duplicate_rows_based_on_quantity(file_path):
     wb.save(new_file_name)
 
     # Load the Excel file
-    df = pd.read_excel(new_file_name, engine='openpyxl')
-
-    # Drop the first two rows
-    df = df.iloc[1:]
-
+    df = pd.read_excel(new_file_name, engine='openpyxl', skiprows=1)
     # Save the DataFrame to a CSV file
     csv_file = f"{base_name}_labels.csv"  # Change this to your desired output file name
     df.to_csv(csv_file, index=False)
+    
     os.remove(f"{base_name}_labels.xlsx")
 
 
