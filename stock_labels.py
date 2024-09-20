@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from openpyxl import load_workbook, Workbook
+import pandas as pd
 import os
 
 def load_file():
@@ -11,6 +12,9 @@ def load_file():
     )
     if file_path:
         label.config(text=f"Loaded: {os.path.basename(file_path)}")
+
+def is_valid(value):
+    return value is not None and value != '' and bool(value)
 
 def duplicate_rows_based_on_quantity(file_path):
     # Load the workbook and select the first sheet
@@ -25,8 +29,9 @@ def duplicate_rows_based_on_quantity(file_path):
         qty = ws.cell(row=i, column=7).value  # Adjust to the correct column for Quantity
         unit = ws.cell(row=i, column=8).value  # Get the box unit info
         isWeight = ws.cell(row=i, column=9).value  # Check if this item is a weight item
-
-        if isWeight == '00000000':
+        print(isWeight)
+        if is_valid(isWeight):
+            print(isWeight)
             continue
 
         if not isinstance(qty, (int, float)) or not isinstance(unit, (int, float)):
@@ -53,6 +58,18 @@ def duplicate_rows_based_on_quantity(file_path):
     new_file_name = f"{base_name}_labels{ext}"   # Add '_labels' to the name
     wb.save(new_file_name)
 
+    # Load the Excel file
+    df = pd.read_excel(new_file_name, engine='openpyxl')
+
+    # Drop the first two rows
+    df = df.iloc[1:]
+
+    # Save the DataFrame to a CSV file
+    csv_file = f"{base_name}_labels.csv"  # Change this to your desired output file name
+    df.to_csv(csv_file, index=False)
+    os.remove(f"{base_name}_labels.xlsx")
+
+
 def generate_labels():
     if not file_path:
         messagebox.showwarning("Warning", "Please load an Excel file first.")
@@ -60,7 +77,7 @@ def generate_labels():
 
     try:
         duplicate_rows_based_on_quantity(file_path)
-        messagebox.showinfo("Success", f"Labels file created: {os.path.basename(file_path).replace('.xlsx', '_labels.xlsx')}")
+        messagebox.showinfo("Success", f"Labels file created: {os.path.basename(file_path).replace('.xlsx', '_labels.csv')}")
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
@@ -100,7 +117,7 @@ info_label = tk.Label(app, text=
     "\n"
     "Column H is the number of items in one box.\n"
     "\n"
-    "Column I has the value '00000000' is for weighted items.\n"
+    "Column I has the value 'TRUE' is for weighted items.\n"
     "\n",
       wraplength=300)
 info_label.pack(pady=5)
