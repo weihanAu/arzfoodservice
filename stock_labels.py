@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from openpyxl import load_workbook, Workbook
+from openpyxl import load_workbook
 import pandas as pd
 import os
 
