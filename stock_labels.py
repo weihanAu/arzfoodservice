@@ -56,7 +56,7 @@ def duplicate_rows_based_on_quantity(file_path):
                ws.cell(row=i, column=9).value = "1 box"
               if unit !=1:
                ws.cell(row=i, column=9).value = "1 unit"
-               
+
         if 1 < qty and qty < unit:
              if qty > 1:
                   while qty > 0 and qty < unit:
@@ -75,9 +75,11 @@ def duplicate_rows_based_on_quantity(file_path):
 
     # Load the Excel file
     df = pd.read_excel(new_file_name, engine='openpyxl', skiprows=1)
+    # reverse the csv file
+    df_reversed = df.iloc[::-1]
     # Save the DataFrame to a CSV file
     csv_file = f"{base_name}_labels.csv"  # Change this to your desired output file name
-    df.to_csv(csv_file, index=False)
+    df_reversed.to_csv(csv_file, index=False)
     
     os.remove(f"{base_name}_labels.xlsx")
 
