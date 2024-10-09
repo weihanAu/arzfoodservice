@@ -52,8 +52,11 @@ def duplicate_rows_based_on_quantity(file_path):
             qty -= unit
 
         if qty == 1:
-              ws.cell(row=i, column=9).value = "1 unit"
-
+              if unit ==1:
+               ws.cell(row=i, column=9).value = "1 box"
+              if unit !=1:
+               ws.cell(row=i, column=9).value = "1 unit"
+               
         if 1 < qty and qty < unit:
              if qty > 1:
                   while qty > 0 and qty < unit:
