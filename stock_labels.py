@@ -26,9 +26,10 @@ def duplicate_rows_based_on_quantity(file_path):
 
     # Loop through rows starting from the last row and working upwards
     for i in range(last_row, 2, -1):  # Starts at row 3
-        qty = ws.cell(row=i, column=9).value  # Adjust to the correct column for Quantity
-        unit = ws.cell(row=i, column=10).value  # Get the box unit info
-        isWeight = ws.cell(row=i, column=11).value  # Check if this item is a weight item
+        qty = ws.cell(row=i, column=10).value  # Adjust to the correct column for Quantity
+        unit = ws.cell(row=i, column=11).value  # Get the box unit info
+        isWeight = ws.cell(row=i, column=12).value  # Check if this item is a weight item          
+        issmallitem = ws.cell(row=i, column=8).value  # Adjust to the correct column for Quantity
 
         if is_valid(isWeight):
             print(isWeight)
@@ -39,33 +40,39 @@ def duplicate_rows_based_on_quantity(file_path):
                              f"Quantity: {qty}, Unit: {unit} (Both should be integers).")
 
         if qty == unit:
-            ws.cell(row=i, column=9).value = "1 box"
+            ws.cell(row=i, column=10).value = "1 box"
 
         while qty > unit:
-            ws.cell(row=i, column=9).value = "1 box"
+            ws.cell(row=i, column=10).value = "1 box"
             ws.insert_rows(i + 1)
             for j in range(1, ws.max_column + 1):
                 ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
 
-            ws.cell(row=i + 1, column=9).value = "1 box"
-            ws.cell(row=i + 1, column=10).value = unit
+            ws.cell(row=i + 1, column=10).value = "1 box"
+            ws.cell(row=i + 1, column=11).value = unit
             qty -= unit
 
         if qty == 1:
-              if unit ==1:
-               ws.cell(row=i, column=9).value = "1 box"
+              if unit ==1 and not is_valid(issmallitem):
+               ws.cell(row=i, column=10).value = "1 box"
               if unit !=1:
-               ws.cell(row=i, column=9).value = "1 unit"
+               ws.cell(row=i, column=10).value = "1 unit"
 
         if 1 < qty and qty < unit:
-             if qty > 1:
+             if is_valid(issmallitem):
+                ws.insert_rows(i + 1)  # 插入新行，避免覆盖
+                for j in range(1, ws.max_column + 1):  # 复制当前行内容
+                        ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
+                ws.cell(row=i+1, column=10).value = f"{qty} unit" if qty == 1 else f"{qty} units"
+
+             if qty > 1 and not is_valid(issmallitem):
                   while qty > 0 and qty < unit:
                     ws.insert_rows(i + 1)  # 插入新行，避免覆盖
                     for j in range(1, ws.max_column + 1):  # 复制当前行内容
                         ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
                     # 更新新行的数据
-                    ws.cell(row=i + 1, column=9).value = "1 unit"
-                    ws.cell(row=i + 1, column=10).value = unit
+                    ws.cell(row=i + 1, column=10).value = "1 unit"
+                    ws.cell(row=i + 1, column=11).value = unit
                     qty = qty - 1  # 递减 qty
              ws.delete_rows(i)
 
@@ -104,19 +111,19 @@ app.geometry("400x400")
 
 # Create a frame for the UI with padding
 frame = tk.Frame(app, padx=20, pady=20)
-frame.pack(padx=10, pady=10)
+frame.pack(padx=11, pady=11)
 
 # Load File Button
 load_button = tk.Button(app, text="Load Excel File", command=load_file)
-load_button.pack(pady=10)
+load_button.pack(pady=11)
 
 # Label to display loaded file
 label = tk.Label(app, text="")
-label.pack(pady=10)
+label.pack(pady=11)
 
 # Generate Labels Button
 generate_button = tk.Button(app, text="Generate Labels", command=generate_labels)
-generate_button.pack(pady=10)
+generate_button.pack(pady=11)
 
 # Text below the Generate Labels button
 info_label = tk.Label(app, text=
