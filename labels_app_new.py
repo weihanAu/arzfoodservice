@@ -41,9 +41,37 @@ def duplicate_rows_based_on_quantity(file_path):
         qty = ws.cell(row=i, column=11).value  # Adjust to the correct column for Quantity
 
         #check unit weight in description
+        if  re.search(r'(\d+)g', qty_description):
+            issmallitem = True
         if "1kg" in qty_description:
             issmallitem = True
         if "1.5kg" in qty_description:
+            issmallitem = True
+        if "1.4kg" in qty_description:
+            issmallitem = True
+        if "1.3kg" in qty_description:
+            issmallitem = True
+        if "1.2kg" in qty_description:
+            issmallitem = True
+        if "1.1kg" in qty_description:
+            issmallitem = True
+        if "0.9kg" in qty_description:
+            issmallitem = True
+        if "0.8kg" in qty_description:
+            issmallitem = True
+        if "0.7kg" in qty_description:
+            issmallitem = True
+        if "0.6kg" in qty_description:
+            issmallitem = True
+        if "0.5kg" in qty_description:
+            issmallitem = True
+        if "0.4kg" in qty_description:
+            issmallitem = True
+        if "0.3kg" in qty_description:
+            issmallitem = True
+        if "0.2kg" in qty_description:
+            issmallitem = True
+        if "0.1kg" in qty_description:
             issmallitem = True
            
         # if canPatch is False, means don't modify the current row
