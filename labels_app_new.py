@@ -5,6 +5,18 @@ import pandas as pd
 import os
 import re
 
+big_array =["EGGS - 700g  {59's}"]
+
+small_array=[
+    'SHANKLISH CHEESE {Appox 240g} Rw',
+    'GLOVES VYNAL LARGE x 100 (10)',
+    'PAPER TOWELS (16)',
+    'CONTAINERS RECTANGLE **** 750ml **** 50pk (10)',
+    'GLOVES VYNAL LARGE x 100 (10)',
+    'LIDS FOR **** RECTANGLE **** CONTAINERS 50pk (10)',
+    'CONTAINERS RECTANGLE **** 500ml **** 50pk (10)'
+    ]
+
 def load_file():
     global file_path
     file_path = filedialog.askopenfilename(
@@ -27,6 +39,13 @@ def duplicate_rows_based_on_quantity(file_path):
 
     # Loop through rows starting from the last row and working upwards
     for i in range(last_row, 2, -1):  # Starts at row 3
+        
+        #remove the row if its a frozen item,
+        location_code = ws.cell(row=i, column=5).value
+        if location_code.startswith("F"):
+            ws.delete_rows(i)
+            continue
+
         canPatch = False
         qty_description = ws.cell(row=i, column=10).value
         number_in_parentheses = re.search(r'\((\d+)\)', qty_description)
@@ -76,10 +95,15 @@ def duplicate_rows_based_on_quantity(file_path):
         # check if it has strings like '6 x 100 pack'
         if  re.search(r'x\s*\d+', qty_description, re.IGNORECASE):  # Case-insensitive search
             issmallitem = False
+        # additions check for some special items
+        if qty_description in big_array:
+            issmallitem = False
+        if qty_description in small_array:
+            issmallitem = True
 
         # if canPatch is False, means don't modify the current row
         if canPatch == False:
-            unit = 1
+            unit = 1 #default unit
             if is_valid(issmallitem):
                if qty == 1:
                 ws.cell(row=i, column=12).value=f"{qty}unit" 
@@ -148,6 +172,8 @@ def duplicate_rows_based_on_quantity(file_path):
     df = pd.read_excel(new_file_name, engine='openpyxl', skiprows=1)
     # reverse the csv file
     df_reversed = df.iloc[::-1]
+    #sort the rows
+    df_reversed = df_reversed.sort_values(by=df_reversed.columns[5], kind='mergesort')
     # Save the DataFrame to a CSV file
     csv_file = f"{base_name}_labels.csv"  # Change this to your desired output file name
     df_reversed.to_csv(csv_file, index=False)
