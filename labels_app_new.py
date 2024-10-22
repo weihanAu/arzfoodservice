@@ -28,7 +28,7 @@ def duplicate_rows_based_on_quantity(file_path):
     # Loop through rows starting from the last row and working upwards
     for i in range(last_row, 2, -1):  # Starts at row 3
         canPatch = False
-        qty_description = ws.cell(row=i, column=9).value
+        qty_description = ws.cell(row=i, column=10).value
         number_in_parentheses = re.search(r'\((\d+)\)', qty_description)
         if number_in_parentheses:
              number = number_in_parentheses.group(1)
@@ -37,8 +37,8 @@ def duplicate_rows_based_on_quantity(file_path):
               canPatch = True
               unit = number
        
-        issmallitem = ws.cell(row=i, column=10).value  # Adjust to the correct column for Quantity
-        qty = ws.cell(row=i, column=11).value  # Adjust to the correct column for Quantity
+        issmallitem = ws.cell(row=i, column=11).value  # Adjust to the correct column for Quantity
+        qty = ws.cell(row=i, column=12).value  # Adjust to the correct column for Quantity
 
         #check unit weight in description
         if  re.search(r'(\d+)g', qty_description):
@@ -73,15 +73,18 @@ def duplicate_rows_based_on_quantity(file_path):
             issmallitem = True
         if "0.1kg" in qty_description:
             issmallitem = True
-           
+        # check if it has strings like '6 x 100 pack'
+        if  re.search(r'x\s*\d+', qty_description, re.IGNORECASE):  # Case-insensitive search
+            issmallitem = False
+
         # if canPatch is False, means don't modify the current row
         if canPatch == False:
             unit = 1
             if is_valid(issmallitem):
                if qty == 1:
-                ws.cell(row=i, column=11).value=f"{qty}unit" 
+                ws.cell(row=i, column=12).value=f"{qty}unit" 
                if qty > 1:
-                ws.cell(row=i, column=11).value=f"{qty}units" 
+                ws.cell(row=i, column=12).value=f"{qty}units" 
                continue
        
         if not isinstance(qty, (int, float)) or not isinstance(unit, (int, float)):
@@ -90,41 +93,41 @@ def duplicate_rows_based_on_quantity(file_path):
         # if unit per box == 1
         if unit == 1:
             if qty ==1:
-                ws.cell(row=i, column=11).value = "1 unit"
+                ws.cell(row=i, column=12).value = "1 unit"
             while qty > 1:
-                ws.cell(row=i, column=11).value = "1 unit"
+                ws.cell(row=i, column=12).value = "1 unit"
                 ws.insert_rows(i + 1)
                 for j in range(1, ws.max_column + 1):
                     ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
 
-                ws.cell(row=i + 1, column=11).value = "1 unit"
-                ws.cell(row=i + 1, column=12).value = unit
+                ws.cell(row=i + 1, column=12).value = "1 unit"
+                ws.cell(row=i + 1, column=13).value = unit
                 qty -= 1
             # then stop the codes running    
             continue
         # if unit > 1
         if qty == unit:
-            ws.cell(row=i, column=11).value = "1 box"
+            ws.cell(row=i, column=12).value = "1 box"
 
         while qty > unit:
-            ws.cell(row=i, column=11).value = "1 box"
+            ws.cell(row=i, column=12).value = "1 box"
             ws.insert_rows(i + 1)
             for j in range(1, ws.max_column + 1):
                 ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
 
-            ws.cell(row=i + 1, column=11).value = "1 box"
-            ws.cell(row=i + 1, column=12).value = unit
+            ws.cell(row=i + 1, column=12).value = "1 box"
+            ws.cell(row=i + 1, column=13).value = unit
             qty -= unit
 
         if qty == 1:
-               ws.cell(row=i, column=11).value = "1 unit"
+               ws.cell(row=i, column=12).value = "1 unit"
 
         if 1 < qty and qty < unit:
              if is_valid(issmallitem):
                 ws.insert_rows(i + 1)  # 插入新行，避免覆盖
                 for j in range(1, ws.max_column + 1):  # 复制当前行内容
                         ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
-                ws.cell(row=i+1, column=11).value = f"{qty} unit" if qty == 1 else f"{qty} units"
+                ws.cell(row=i+1, column=12).value = f"{qty} unit" if qty == 1 else f"{qty} units"
 
              if qty > 1 and not is_valid(issmallitem):
                   while qty > 0 and qty < unit:
@@ -132,8 +135,8 @@ def duplicate_rows_based_on_quantity(file_path):
                     for j in range(1, ws.max_column + 1):  # 复制当前行内容
                         ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
                     # 更新新行的数据
-                    ws.cell(row=i + 1, column=11).value = "1 unit"
-                    ws.cell(row=i + 1, column=12).value = unit
+                    ws.cell(row=i + 1, column=12).value = "1 unit"
+                    ws.cell(row=i + 1, column=13).value = unit
                     qty = qty - 1  # 递减 qty
              ws.delete_rows(i)
 
