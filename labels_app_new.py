@@ -5,16 +5,30 @@ import pandas as pd
 import os
 import re
 
-big_array =["EGGS - 700g  {59's}"]
+big_array =[
+    "EGGS - 700g  {59's}",
+    "EGGS - 600g  {55's} {SUNEGGS}",
+    "EGGS FREE RANGE - 700g  **** TRAY BOX ****"
+    ]
 
 small_array=[
     'SHANKLISH CHEESE {Appox 240g} Rw',
     'GLOVES VYNAL LARGE x 100 (10)',
     'PAPER TOWELS (16)',
-    'CONTAINERS RECTANGLE **** 750ml **** 50pk (10)',
     'GLOVES VYNAL LARGE x 100 (10)',
-    'LIDS FOR **** RECTANGLE **** CONTAINERS 50pk (10)',
-    'CONTAINERS RECTANGLE **** 500ml **** 50pk (10)'
+    "CONTAINERS RECTANGLE **** 500ml **** 50pk (10)",
+    "CONTAINERS RECTANGLE **** 650ml **** 50pk (10)",
+    "CONTAINERS RECTANGLE **** 750ml **** 50pk (10)",
+    "LIDS FOR **** RECTANGLE **** CONTAINERS 50pk (10)",
+    "HEAVY DUTY CONTAINERS **** 1000ml ****  50pk (10)",
+    "HEAVY DUTY CONTAINERS **** 750ml ****  50pk (10)",
+    "LIDS FOR RECTANGLE **** HEAVY DUTY **** CONTAINERS 50pk (10)",
+    "CONTAINER PLASTIC ROUND **** 280ml ****  50pk (10)",
+    "CONTAINER PLASTIC ROUND **** 440ml **** x 50 (10)",
+    "LIDS FOR **** ROUND **** CONTAINERS 50pk (10)",
+    "CONTAINER PLASTIC ROUND WITH LID 70ml x 50 (20)",
+    "CONTAINER PLASTIC ROUND 70ml x 50 (20)",
+    "LIDS x 100 **** 70ml CONTAINER PLASTIC ROUND **** (10)"
     ]
 
 def load_file():
@@ -60,38 +74,16 @@ def duplicate_rows_based_on_quantity(file_path):
         qty = ws.cell(row=i, column=12).value  # Adjust to the correct column for Quantity
 
         #check unit weight in description
+        item_weight = re.search(r'(\d+\.\d+|\d+)kg', qty_description)
+
+        if item_weight:
+            if float(item_weight.group(1))<=2:
+             print(float(item_weight.group(1)))
+             issmallitem = True
+
         if  re.search(r'(\d+)g', qty_description):
             issmallitem = True
-        if "1kg" in qty_description:
-            issmallitem = True
-        if "1.5kg" in qty_description:
-            issmallitem = True
-        if "1.4kg" in qty_description:
-            issmallitem = True
-        if "1.3kg" in qty_description:
-            issmallitem = True
-        if "1.2kg" in qty_description:
-            issmallitem = True
-        if "1.1kg" in qty_description:
-            issmallitem = True
-        if "0.9kg" in qty_description:
-            issmallitem = True
-        if "0.8kg" in qty_description:
-            issmallitem = True
-        if "0.7kg" in qty_description:
-            issmallitem = True
-        if "0.6kg" in qty_description:
-            issmallitem = True
-        if "0.5kg" in qty_description:
-            issmallitem = True
-        if "0.4kg" in qty_description:
-            issmallitem = True
-        if "0.3kg" in qty_description:
-            issmallitem = True
-        if "0.2kg" in qty_description:
-            issmallitem = True
-        if "0.1kg" in qty_description:
-            issmallitem = True
+      
         # check if it has strings like '6 x 100 pack'
         if  re.search(r'x\s*\d+', qty_description, re.IGNORECASE):  # Case-insensitive search
             issmallitem = False
