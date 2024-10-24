@@ -4,7 +4,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 
-def draw_text_in_container(c, x, y, container_width, container_height, text,draw_from_bottom=False):
+def draw_text_in_container(c, x, y, container_width, container_height, text, align_bottom=False):
     # 初始字体大小
     font_size = 10
     c.setFont("Helvetica", font_size)
@@ -66,14 +66,21 @@ def draw_text_in_container(c, x, y, container_width, container_height, text,draw
 
     # 在容器内绘制文本，左对齐
     text_object = c.beginText(x, y + container_height)  # 从容器顶部开始绘制
-    if draw_from_bottom == True:
-        text_object = c.beginText(x, y )  # 从容器顶部开始绘制
     text_object.setFont("Helvetica", font_size)
+
+    if align_bottom:
+        # 如果对齐底部，计算文本的起始Y坐标
+        y_start = y + container_height - total_height
+        text_object = c.beginText(x, y_start)  # 从容器底部开始绘制
+    else:
+        # 否则，保持顶部对齐
+        y_start = y + container_height
 
     for line in text_lines:
         text_object.textLine(line.strip())  # 去掉多余的空格
 
     c.drawText(text_object)
+
 def create_label_pdf(output_path):
     custom_width = 102 * mm  # 自定义宽度
     custom_height = 35 * mm   # 自定义高度
@@ -98,22 +105,20 @@ def create_label_pdf(output_path):
 
     # Almond Meal text
     c.setFont("Helvetica-Bold", 12)
-    draw_text_in_container(c, 2 * mm, 2* mm, 102 * mm, 8 * mm, "ALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kg")
+    draw_text_in_container(c, 2 * mm, 3* mm, 101 * mm, 8 * mm, "ALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kg",True)
     # c.drawString(2 * mm, 2 * mm, 102 * mm,"ALMOND **** MEAL **** 1kg")
 
     # Black box (Run, Sub, QTY)
     c.setFillColorRGB(0, 0, 0)  # Set color to black
-    c.rect(70 * mm, 15 * mm, 30 * mm, 15 * mm, fill=1)  # Black box
+    c.rect(70 * mm, 13 * mm, 30 * mm, 12 * mm, fill=1)  # Black box
 
     c.setFillColorRGB(1, 1, 1)  # Set color to white for text
-    c.setFont("Helvetica-Bold", 8)
-    c.drawString(71 * mm, 26 * mm, "RUN 9SUB A")
 
-    c.setFont("Helvetica-Bold", 8)
-    c.drawString(71 * mm, 24 * mm, "SUB 9A")
+    draw_text_in_container(c, 71* mm, 22* mm,  20* mm, 4 * mm, "RUN 9SUB A",True)
+    draw_text_in_container(c, 71* mm, 18* mm,  20* mm, 4 * mm, "SUB RUN 2",True)
 
     c.setFont("Helvetica-Bold", 6)
-    c.drawString(71 * mm, 22 * mm, "QTY    1 unit")
+    draw_text_in_container(c, 71* mm, 14* mm,  20* mm, 4 * mm, "QTY 1 unit",True)
 
     c.save()
 
