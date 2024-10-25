@@ -3,6 +3,9 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
+import pandas as pd
+import os
+import re
 
 def draw_text_in_container(c, x, y, container_width, container_height, text, align_bottom=False):
     # 初始字体大小
@@ -81,47 +84,46 @@ def draw_text_in_container(c, x, y, container_width, container_height, text, ali
 
     c.drawText(text_object)
 
-def create_label_pdf(output_path):
+def create_label_pdf(order_number,output_path):
     custom_width = 102 * mm  # 自定义宽度
     custom_height = 35 * mm   # 自定义高度
     c = canvas.Canvas(output_path, pagesize=(custom_width, custom_height))
+   # Read CSV file
+    df = pd.read_csv('orders_labels.csv')
 
-    # Draw the border
-    # 将边框调整到适应新的纸张大小
-    c.rect(1 * mm, 1 * mm, 100 * mm, 33 * mm)  # (x, y, width, height)
+    for index, row in df.iterrows():
+        # Draw the border
+        # 将边框调整到适应新的纸张大小
+        c.rect(1 * mm, 1 * mm, 100 * mm, 33 * mm)  # (x, y, width, height)
+        # Text and positions
+        c.setFont("Helvetica-Bold", 16)  # 调整字体大小以适应小纸张
+        draw_text_in_container(c, 2 * mm, 22 * mm, 90 * mm, 8 * mm, row.iloc[2])
+        draw_text_in_container(c, 2 * mm, 18 * mm,  30* mm, 4 * mm, f"ORDER NO.  {row.iloc[5]}",True)
+        draw_text_in_container(c, 2 * mm, 14 * mm,  30* mm, 4 * mm, f"DATE       {row.iloc[7]}",True)
 
-    # Text and positions
-    c.setFont("Helvetica-Bold", 16)  # 调整字体大小以适应小纸张
-    draw_text_in_container(c, 2 * mm, 22 * mm, 90 * mm, 8 * mm, "Sorrento Cafe Sorrento Cafe Sorrento Cafe Sorrento Cafe Sorrento Cafe Sorrento Cafe  Sorrento Cafe Sorrento Cafe ")
+        # # Add logo placeholder (optional - you can load an actual image instead)
+        # c.drawString(50 * mm, 24 * mm, "ARZ")  # Adjust位置以适应纸张
+        # c.setFont("Helvetica", 5)
+        # c.drawString(48 * mm, 22 * mm, "FOOD SERVICE")
 
-    c.setFont("Helvetica", 6)
-    c.drawString(2 * mm, 27 * mm, "ORDER NO.   750124")
-    c.drawString(2 * mm, 25 * mm, "DATE          2024-10-24")
+        # Almond Meal text
+        c.setFont("Helvetica-Bold", 12)
+        draw_text_in_container(c, 2 * mm, 3* mm, 101 * mm, 8 * mm, row.iloc[9],True)
 
-    # # Add logo placeholder (optional - you can load an actual image instead)
-    # c.drawString(50 * mm, 24 * mm, "ARZ")  # Adjust位置以适应纸张
-    # c.setFont("Helvetica", 5)
-    # c.drawString(48 * mm, 22 * mm, "FOOD SERVICE")
+        # Black box (Run, Sub, QTY)
+        # c.setFillColorRGB(0, 0, 0)  # Set color to black
+        c.rect(70 * mm, 13 * mm, 30 * mm, 12 * mm, fill=1)  # Black box
 
-    # Almond Meal text
-    c.setFont("Helvetica-Bold", 12)
-    draw_text_in_container(c, 2 * mm, 3* mm, 101 * mm, 8 * mm, "ALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kgALMOND **** MEAL **** 1kg",True)
-    # c.drawString(2 * mm, 2 * mm, 102 * mm,"ALMOND **** MEAL **** 1kg")
+        c.setFillColorRGB(1, 1, 1)  # Set color to white for text
 
-    # Black box (Run, Sub, QTY)
-    c.setFillColorRGB(0, 0, 0)  # Set color to black
-    c.rect(70 * mm, 13 * mm, 30 * mm, 12 * mm, fill=1)  # Black box
+        draw_text_in_container(c, 71* mm, 22* mm,  20* mm, 4 * mm, str(row.iloc[3]),True)
+        draw_text_in_container(c, 71* mm, 18* mm,  20* mm, 4 * mm, str(row.iloc[6]),True)
+        c.setFont("Helvetica-Bold", 6)
+        draw_text_in_container(c, 71* mm, 14* mm,  20* mm, 4 * mm, str(row.iloc[11]),True)
 
-    c.setFillColorRGB(1, 1, 1)  # Set color to white for text
-
-    draw_text_in_container(c, 71* mm, 22* mm,  20* mm, 4 * mm, "RUN 9SUB A",True)
-    draw_text_in_container(c, 71* mm, 18* mm,  20* mm, 4 * mm, "SUB RUN 2",True)
-
-    c.setFont("Helvetica-Bold", 6)
-    draw_text_in_container(c, 71* mm, 14* mm,  20* mm, 4 * mm, "QTY 1 unit",True)
+        # 添加新页面
+        c.showPage()    
 
     c.save()
-
-# 调用函数并保存到当前路径
-create_label_pdf("label_output.pdf")
-
+    
+create_label_pdf(1111,'label_output.pdf')
