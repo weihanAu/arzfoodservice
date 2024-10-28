@@ -3,6 +3,7 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
+from tkinter import messagebox
 import pandas as pd
 import os
 import re
@@ -88,8 +89,18 @@ def create_label_pdf(order_number,output_path):
     custom_width = 102 * mm  # 自定义宽度
     custom_height = 35 * mm   # 自定义高度
     c = canvas.Canvas(output_path, pagesize=(custom_width, custom_height))
-   # Read CSV file
+    # Read CSV file
     df = pd.read_csv('orders_labels.csv')
+    # slice the csv file by using order number
+    try:
+        order_number = int(order_number.replace(" ", "").replace(',', ''))
+        df = df[df['SalesOrder.Number'] == order_number]
+        if df.empty:
+            raise Exception("No orders found with the given order number!")
+        # filter csv by order number
+    except Exception as e:
+        messagebox.showerror("Error",str(e))
+        return
 
     for index, row in df.iterrows():
         # Draw the border
@@ -125,5 +136,5 @@ def create_label_pdf(order_number,output_path):
         c.showPage()    
 
     c.save()
+    messagebox.showinfo('Success',f'{order_number} are sent to a printer successfully')
     
-create_label_pdf(1111,'label_output.pdf')
