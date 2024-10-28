@@ -51,6 +51,7 @@ def main():
                 try: 
                     csv_generater.duplicate_rows_based_on_quantity(file_path)
                     messagebox.showinfo("Success", "Labels generated successfully!")
+                    update_csv_range()
                 except Exception as e:
                     messagebox.showerror("Error", str(e))
             else:
@@ -62,23 +63,40 @@ def main():
 
     # read the start and end order number
     # Read CSV file
-    try:
-        df = pd.read_csv('orders_labels.csv')
-        # First matching value from the start
-        number1 = df['SalesOrder.Number'].dropna().iloc[0]  # Get the first non-null value
-        # First matching value from the end
-        number2 = df['SalesOrder.Number'].dropna().iloc[-1]  # Get the last non-null value
-
-        if number1 and number2:
-            result = str(number1) + ' - ' + str(number2)
-        else: 
-            result =''
-    except Exception as e:
-        result ='No csv is found!'
-    # Create a label to display the result
-    result_label = tk.Label(root, text=f"current csv range: {result}")
-    result_label.pack(pady=10)
+    def update_csv_range(event=None):
+        try:
+            # 尝试读取 CSV 文件
+            df = pd.read_csv('orders_labels.csv')
+            
+            # 获取第一个非空的 'SalesOrder.Number' 值
+            number1 = df['SalesOrder.Number'].dropna().iloc[0]  # 从开头获取第一个匹配值
+            # 获取最后一个非空的 'SalesOrder.Number' 值
+            number2 = df['SalesOrder.Number'].dropna().iloc[-1]  # 从末尾获取第一个匹配值
+           
+            # 检查 number1 和 number2 是否存在
+            if number1 and number2:
+                result = f"{number1} - {number2}"
+                # 统计订单总数
+                total_orders = df['SalesOrder.Number'].dropna().count()
+            else:
+                result = 'No valid data found'
+                
+        except FileNotFoundError:
+            result = 'No CSV file found!'
+        except Exception as e:
+            result = f"Error: {str(e)}"
+        
+        # 更新标签的文本
+        result_label.config(text=f"Current CSV range: {result}")
+        result_label_count.config(text=f"Total Orders: {total_orders}")
    
+    # 创建一个标签用于显示结果
+    result_label = tk.Label(root, text="Current CSV range: ")
+    result_label.pack(pady=10) 
+    result_label_count = tk.Label(root, text="Total Orders: ")
+    result_label_count.pack(pady=5)
+
+    update_csv_range()
 
     # 保持主窗口打开
     root.mainloop()
