@@ -36,7 +36,8 @@ def duplicate_rows_based_on_quantity(file_path):
     # Load the workbook and select the first sheet
     wb = load_workbook(file_path)
     ws = wb.active  # Adjust this if you need a specific sheet
-
+    # Get the header names (assuming they're in the first row)
+    header_row = {cell.value: cell.column for cell in ws[2]}
     # Find the last row
     last_row = ws.max_row
 
@@ -44,13 +45,13 @@ def duplicate_rows_based_on_quantity(file_path):
     for i in range(last_row, 2, -1):  # Starts at row 3
         
         #remove the row if its a frozen item,
-        location_code = ws.cell(row=i, column=5).value
+        location_code = ws.cell(row=i, column=header_row.get('ProductRecord.Location')).value
         if location_code.startswith("F"):
             ws.delete_rows(i)
             continue
 
         canPatch = False
-        qty_description = ws.cell(row=i, column=10).value
+        qty_description = ws.cell(row=i, column=header_row.get('SalesOrderItem.Description')).value
         number_in_parentheses = re.search(r'\((\d+)\)', qty_description)
         if number_in_parentheses:
              number = number_in_parentheses.group(1)
@@ -59,8 +60,8 @@ def duplicate_rows_based_on_quantity(file_path):
               canPatch = True
               unit = number
        
-        issmallitem = ws.cell(row=i, column=11).value  # Adjust to the correct column for Quantity
-        qty = ws.cell(row=i, column=12).value  # Adjust to the correct column for Quantity
+        issmallitem = ws.cell(row=i, column=header_row.get('ProductRecord.WebDescription')).value  # Adjust to the correct column for Quantity
+        qty = ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value  # Adjust to the correct column for Quantity
 
         #check unit weight in description
         item_weight = re.search(r'(\d+\.\d+|\d+)kg', qty_description)
@@ -87,9 +88,9 @@ def duplicate_rows_based_on_quantity(file_path):
             unit = 1 #default unit
             if is_valid(issmallitem):
                if qty == 1:
-                ws.cell(row=i, column=12).value=f"{qty}unit" 
+                ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value=f"{qty}unit" 
                if qty > 1:
-                ws.cell(row=i, column=12).value=f"{qty}units" 
+                ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value=f"{qty}units" 
                continue
        
         if not isinstance(qty, (int, float)) or not isinstance(unit, (int, float)):
@@ -98,41 +99,41 @@ def duplicate_rows_based_on_quantity(file_path):
         # if unit per box == 1
         if unit == 1:
             if qty ==1:
-                ws.cell(row=i, column=12).value = "1 unit"
+                ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value = "1 unit"
             while qty > 1:
-                ws.cell(row=i, column=12).value = "1 unit"
+                ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value = "1 unit"
                 ws.insert_rows(i + 1)
                 for j in range(1, ws.max_column + 1):
                     ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
 
-                ws.cell(row=i + 1, column=12).value = "1 unit"
-                ws.cell(row=i + 1, column=13).value = unit
+                ws.cell(row=i + 1, column=header_row.get('SalesOrderItem.Quantity')).value = "1 unit"
+                ws.cell(row=i + 1, column=header_row.get('ProductRecord.SupplementaryUnitQuantity')).value = unit
                 qty -= 1
             # then stop the codes running    
             continue
         # if unit > 1
         if qty == unit:
-            ws.cell(row=i, column=12).value = "1 box"
+            ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value = "1 box"
 
         while qty > unit:
-            ws.cell(row=i, column=12).value = "1 box"
+            ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value = "1 box"
             ws.insert_rows(i + 1)
             for j in range(1, ws.max_column + 1):
                 ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
 
-            ws.cell(row=i + 1, column=12).value = "1 box"
-            ws.cell(row=i + 1, column=13).value = unit
+            ws.cell(row=i + 1, column=header_row.get('SalesOrderItem.Quantity')).value = "1 box"
+            ws.cell(row=i + 1, column=header_row.get('ProductRecord.SupplementaryUnitQuantity')).value = unit
             qty -= unit
 
         if qty == 1:
-               ws.cell(row=i, column=12).value = "1 unit"
+               ws.cell(row=i, column=header_row.get('SalesOrderItem.Quantity')).value = "1 unit"
 
         if 1 < qty and qty < unit:
              if is_valid(issmallitem):
                 ws.insert_rows(i + 1)  # 插入新行，避免覆盖
                 for j in range(1, ws.max_column + 1):  # 复制当前行内容
                         ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
-                ws.cell(row=i+1, column=12).value = f"{qty} unit" if qty == 1 else f"{qty} units"
+                ws.cell(row=i+1, column=header_row.get('SalesOrderItem.Quantity')).value = f"{qty} unit" if qty == 1 else f"{qty} units"
 
              if qty > 1 and not is_valid(issmallitem):
                   while qty > 0 and qty < unit:
@@ -140,8 +141,8 @@ def duplicate_rows_based_on_quantity(file_path):
                     for j in range(1, ws.max_column + 1):  # 复制当前行内容
                         ws.cell(row=i + 1, column=j).value = ws.cell(row=i, column=j).value
                     # 更新新行的数据
-                    ws.cell(row=i + 1, column=12).value = "1 unit"
-                    ws.cell(row=i + 1, column=13).value = unit
+                    ws.cell(row=i + 1, column=header_row.get('SalesOrderItem.Quantity')).value = "1 unit"
+                    ws.cell(row=i + 1, column=header_row.get('ProductRecord.SupplementaryUnitQuantity')).value = unit
                     qty = qty - 1  # 递减 qty
              ws.delete_rows(i)
 
