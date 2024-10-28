@@ -3,12 +3,13 @@ from tkinter import simpledialog, messagebox, filedialog
 import os
 import csv_generater
 import print_model
+import pandas as pd
 
 def main():
     # 创建一个Tkinter窗口
     root = tk.Tk()
     root.title("Order Number Entry")
-    root.geometry("300x150")
+    root.geometry("400x300")
 
     # 创建一个Label用于说明
     label = tk.Label(root, text="Please enter your order number:")
@@ -22,10 +23,10 @@ def main():
         user_input = entry.get()
         if user_input:
             # 显示用户输入的订单号
-            messagebox.showinfo("Order Number", f"Your order number is: {user_input}")
-            entry.delete(0, tk.END)  # 清空输入框
+            # messagebox.showinfo("Order Number", f"Your order number is: {user_input}")
             try:
-                print_model.create_label_pdf(111111,"label_output.pdf")
+                print_model.create_label_pdf(user_input,"label_output.pdf")
+                entry.delete(0, tk.END)  # 清空输入框
             except Exception as e:
                     messagebox.showerror("Error", str(e))
 
@@ -58,6 +59,26 @@ def main():
     # 创建一个加载 Excel 文件的按钮
     load_button = tk.Button(root, text="Load Excel File", command=load_excel_file)
     load_button.pack(pady=10)
+
+    # read the start and end order number
+    # Read CSV file
+    try:
+        df = pd.read_csv('orders_labels.csv')
+        # First matching value from the start
+        number1 = df['SalesOrder.Number'].dropna().iloc[0]  # Get the first non-null value
+        # First matching value from the end
+        number2 = df['SalesOrder.Number'].dropna().iloc[-1]  # Get the last non-null value
+
+        if number1 and number2:
+            result = str(number1) + ' - ' + str(number2)
+        else: 
+            result =''
+    except Exception as e:
+        result ='No csv is found!'
+    # Create a label to display the result
+    result_label = tk.Label(root, text=f"current csv range: {result}")
+    result_label.pack(pady=10)
+   
 
     # 保持主窗口打开
     root.mainloop()
