@@ -9,7 +9,7 @@ import pandas as pd
 
 def draw_text_in_container(c, x, y, container_width, container_height, text, align_bottom=False):
     # 初始字体大小
-    font_size = 10
+    font_size = 16
     c.setFont("Helvetica", font_size)
 
     # 计算文本行
@@ -107,7 +107,7 @@ def create_label_pdf(order_number,output_path):
         c.rect(1 * mm, 1 * mm, 100 * mm, 33 * mm)  # (x, y, width, height)
         # Text and positions
         c.setFont("Helvetica-Bold", 16)  # 调整字体大小以适应小纸张
-        draw_text_in_container(c, 2 * mm, 22 * mm, 90 * mm, 8 * mm, row.iloc[2])
+        draw_text_in_container(c, 2 * mm, 21 * mm, 90 * mm, 8 * mm, row.iloc[2])
         draw_text_in_container(c, 2 * mm, 18 * mm,  30* mm, 4 * mm, f"ORDER NO.  {row.iloc[5]}",True)
         draw_text_in_container(c, 2 * mm, 14 * mm,  30* mm, 4 * mm, f"DATE       {row.iloc[7]}",True)
 
@@ -118,18 +118,17 @@ def create_label_pdf(order_number,output_path):
 
         # Almond Meal text
         c.setFont("Helvetica-Bold", 12)
-        draw_text_in_container(c, 2 * mm, 3* mm, 101 * mm, 8 * mm, row.iloc[9],True)
+        draw_text_in_container(c, 2 * mm, 3* mm, 70* mm, 8 * mm, row.iloc[9],True)
 
         # Black box (Run, Sub, QTY)
         # c.setFillColorRGB(0, 0, 0)  # Set color to black
-        c.rect(70 * mm, 13 * mm, 30 * mm, 12 * mm, fill=1)  # Black box
+        c.rect(70 * mm, 9.5 * mm, 30 * mm, 18 * mm, fill=1)  # Black box
 
         c.setFillColorRGB(1, 1, 1)  # Set color to white for text
-
-        draw_text_in_container(c, 71* mm, 22* mm,  20* mm, 4 * mm, str(row.iloc[3]),True)
-        draw_text_in_container(c, 71* mm, 18* mm,  20* mm, 4 * mm, str(row.iloc[6]),True)
-        c.setFont("Helvetica-Bold", 6)
-        draw_text_in_container(c, 71* mm, 14* mm,  20* mm, 4 * mm, str(row.iloc[11]),True)
+        #run, sub run, qanty
+        draw_text_in_container(c, 71* mm, 22* mm,  30* mm, 6 * mm, str(row.iloc[3]),True)
+        draw_text_in_container(c, 71* mm, 16* mm,  20* mm, 6 * mm, str(row.iloc[6]),True)
+        draw_text_in_container(c, 71* mm, 10* mm,  30* mm, 6 * mm, str(row.iloc[11]),True)
 
         # 添加新页面
         c.showPage()    
