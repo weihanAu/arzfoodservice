@@ -5,8 +5,7 @@ from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from tkinter import messagebox
 import pandas as pd
-import os
-import re
+
 
 def draw_text_in_container(c, x, y, container_width, container_height, text, align_bottom=False):
     # 初始字体大小
@@ -136,5 +135,6 @@ def create_label_pdf(order_number,output_path):
         c.showPage()    
 
     c.save()
+
     messagebox.showinfo('Success',f'{order_number} are sent to a printer successfully')
     
