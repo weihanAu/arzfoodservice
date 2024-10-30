@@ -64,6 +64,8 @@ def main():
     # read the start and end order number
     # Read CSV file
     def update_csv_range(event=None):
+        total_orders=0
+        distinct_sales_orders=0
         try:
             # 尝试读取 CSV 文件
             df = pd.read_csv('orders_labels.csv')
@@ -78,6 +80,8 @@ def main():
                 result = f"{number1} - {number2}"
                 # 统计订单总数
                 total_orders = df['SalesOrder.Number'].dropna().count()
+                # return how many orders
+                distinct_sales_orders = df['SalesOrder.Number'].nunique()
             else:
                 result = 'No valid data found'
                 
@@ -88,12 +92,15 @@ def main():
         
         # 更新标签的文本
         result_label.config(text=f"Current CSV range: {result}")
-        result_label_count.config(text=f"Total Orders: {total_orders}")
+        result_label_count.config(text=f"Total labels: {total_orders}")
+        result_label_count_orders.config(text=f"Total Orders: {distinct_sales_orders}")
    
     # 创建一个标签用于显示结果
     result_label = tk.Label(root, text="Current CSV range: ")
-    result_label.pack(pady=10) 
-    result_label_count = tk.Label(root, text="Total Orders: ")
+    result_label.pack(pady=5) 
+    result_label_count_orders = tk.Label(root, text="Total orders: ")
+    result_label_count_orders.pack(pady=5)
+    result_label_count = tk.Label(root, text="Total labels: ")
     result_label_count.pack(pady=5)
 
     update_csv_range()
