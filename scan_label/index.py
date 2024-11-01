@@ -4,6 +4,7 @@ import os
 import csv_generater
 import print_model
 import pandas as pd
+from datetime import datetime
 
 def main():
     # 创建一个Tkinter窗口
@@ -25,7 +26,9 @@ def main():
             # 显示用户输入的订单号
             # messagebox.showinfo("Order Number", f"Your order number is: {user_input}")
             try:
-                print_model.create_label_pdf(user_input,"label_output.pdf")
+                current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+                label_file_name=user_input+'_'+current_time+'_label.pdf'
+                print_model.create_label_pdf(user_input,label_file_name)
                 entry.delete(0, tk.END)  # 清空输入框
             except Exception as e:
                     messagebox.showerror("Error", str(e))
@@ -107,9 +110,6 @@ def main():
 
     # 保持主窗口打开
     root.mainloop()
-
-   
-
     
 if __name__ == "__main__":
     main()
