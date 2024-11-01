@@ -126,8 +126,11 @@ def create_label_pdf(order_number,output_path):
 
         c.setFillColorRGB(1, 1, 1)  # Set color to white for text
         #run, sub run, qanty
+        sub_run = str(row.iloc[6])
+        if pd.isna(row.iloc[6]):
+            sub_run = ''
         draw_text_in_container(c, 71* mm, 22* mm,  30* mm, 6 * mm, str(row.iloc[3]),True)
-        draw_text_in_container(c, 71* mm, 16* mm,  20* mm, 6 * mm, str(row.iloc[6]),True)
+        draw_text_in_container(c, 71* mm, 16* mm,  20* mm, 6 * mm, sub_run,True)
         draw_text_in_container(c, 71* mm, 10* mm,  30* mm, 6 * mm, str(row.iloc[11]),True)
 
         # 添加新页面
